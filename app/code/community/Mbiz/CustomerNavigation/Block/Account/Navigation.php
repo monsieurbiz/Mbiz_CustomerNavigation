@@ -20,17 +20,21 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
 
     /**
      * Updated links
-     * @access protected
      * @var array
      */
-    protected $_updatedLinks = array();
+    protected $_updatedLinks = [];
 
     /**
      * Deleted links
-     * @access protected
      * @var array
      */
-    protected $_deletedLinks = array();
+    protected $_deletedLinks = [];
+
+    /**
+     * Order links
+     * @var array
+     */
+    protected $_orders = [];
 
 // Monsieur Biz Tag NEW_VAR
 
@@ -56,17 +60,33 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
 
     /**
      * Update navigation link
-     * @access public
+     * @param string $name Link's name
+     * @param string $path Url path
+     * @param string $label Frontend label
+     * @param array $urlParams URL parameters. Default to empty array.
      * @return Mbiz_CustomerNavigation_Block_Account_Navigation
      */
     public function updateLink($name, $path, $label, $urlParams = array())
     {
-        $this->_updatedLinks[$name] = new Varien_Object(array(
+        $this->_updatedLinks[$name] = new Varien_Object([
             'name'  => $name,
             'path'  => $path,
             'label' => $label,
             'url'   => $this->getUrl($path, $urlParams),
-        ));
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Set the order of a link
+     * @param string $name Link's name to move
+     * @param int $order The order integer : 1st <= $order <= last.
+     * @return Mbiz_CustomerNavigation_Block_Account_Navigation
+     */
+    public function setLinkOrder($name, $order)
+    {
+        $this->_orders[$name] = (int) $order;
         return $this;
     }
 
@@ -77,7 +97,7 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
      */
     public function getLinks()
     {
-        $links = array();
+        $links = [];
 
         foreach ($this->_links as $link) {
             $name = $link->getName();
@@ -90,7 +110,24 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
             }
         }
 
+        $this->_orderLinks($links);
+
         return $links;
+    }
+
+    /**
+     * Reorder links
+     * @param array $links Links to order
+     */
+    protected function _orderLinks(& $links)
+    {
+        $callback = function ($a, $b) {
+            $aOrder = isset($this->_orders[$a['name']]) ? $this->_orders[$a['name']] : 0;
+            $bOrder = isset($this->_orders[$b['name']]) ? $this->_orders[$b['name']] : 0;
+            return $aOrder - $bOrder;
+        };
+
+        usort($links, $callback);
     }
 
 // Monsieur Biz Tag NEW_METHOD
