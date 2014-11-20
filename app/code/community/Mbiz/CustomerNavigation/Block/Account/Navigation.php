@@ -72,7 +72,7 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
             'name'  => $name,
             'path'  => $path,
             'label' => $label,
-            'url'   => $this->getUrl($path, $urlParams),
+            'url'   => (strpos($path, 'http') === 0) ? $path : $this->getUrl($path, $urlParams),
         ]);
 
         return $this;
@@ -116,6 +116,21 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
     }
 
     /**
+     * {@inheritdoc}
+     * <p>The path can be an URL.</p>
+     */
+    public function addLink($name, $path, $label, $urlParams=array())
+    {
+        parent::addLink($name, $path, $label, $urlParams);
+
+        if (strpos($path, 'http') === 0) {
+            $this->_links[$name]['url'] = $path;
+        }
+
+        return $this;
+    }
+
+    /**
      * Reorder links
      * @param array $links Links to order
      */
@@ -128,6 +143,19 @@ class Mbiz_CustomerNavigation_Block_Account_Navigation extends Mage_Customer_Blo
         };
 
         usort($links, $callback);
+    }
+
+    /**
+     * {@inheritdoc}
+     * <p>The path can be an URL.</p>
+     */
+    protected function _completePath($path)
+    {
+        if (strpos($path, 'http') === 0) {
+            return $path;
+        }
+
+        return parent::_completePath($path);
     }
 
 // Monsieur Biz Tag NEW_METHOD
