@@ -26,6 +26,9 @@
                     <account_navigation>Mbiz_CustomerNavigation_Block_Account_Navigation</account_navigation>
                 </rewrite>
             </customer>
+            <mbiz_customernavigation>
+                <class>Mbiz_CustomerNavigation_Block</class>
+            </mbiz_customernavigation>
         </blocks>
     </global>
 </config>
